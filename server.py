@@ -190,7 +190,7 @@ OpenRouter.ai API Configuration
 - Allows env overrides: OPENROUTER_API_KEY, OPENROUTER_BASE_URL
 """
 # Direct assignment without environment variables
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "ur open router key plzz...."
 OPENROUTER_BASE_URL = "https://openrouter.ai/api"
 OPENROUTER_MODEL_ID = "deepseek/deepseek-chat"
 
