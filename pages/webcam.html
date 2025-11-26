@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webcam Translation - ಹಳೆಗನ್ನಡ</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg py-2">
+      <div class="container">
+        <a class="navbar-brand fs-6" href="/">ಹಳೆಗನ್ನಡ</a>
+        <ul class="navbar-nav ms-auto fs-6">
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/pages/text-translation.html">Text Translation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/pages/json-translation.html">JSON Translation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/pages/hale-hosa-seq2seq.html">Hale-Hosa Seq2Seq</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active px-2 py-2" href="/pages/webcam.html">Webcam</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/pages/about.html">About</a>
+            </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="container mt-5">
+      <h1 class="text-center mb-4">Webcam Halegannada Translation</h1>
+      <div class="row">
+        <div class="col-md-6">
+          <video id="webcam" width="100%" height="auto" autoplay></video>
+          <button id="captureBtn" class="btn btn-danger mt-3 w-100">
+            Capture & Translate
+          </button>
+        </div>
+
+        <div class="col-md-6">
+          <h3 class="mt-3">Captured Image</h3>
+          <canvas id="canvas" style="display:none"></canvas>
+          <img id="capturedImage" src="" alt="Captured Image" class="img-fluid mb-3" />
+
+          <h3>Extracted Halegannada Text</h3>
+          <div id="ocrResult" class="p-3 border bg-light mb-3">No text yet.</div>
+
+          <h3>ಹೊಸಗನ್ನಡ (Hosa Kannada)</h3>
+          <div id="kannadaOutput" class="p-3 border bg-light mb-3">—</div>
+
+          <h3>English Translation</h3>
+          <div id="englishOutput" class="p-3 border bg-light">—</div>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const video = document.getElementById("webcam");
+      const captureBtn = document.getElementById("captureBtn");
+      const canvas = document.getElementById("canvas");
+      const capturedImage = document.getElementById("capturedImage");
+      const ocrResult = document.getElementById("ocrResult");
+      const kannadaOutput = document.getElementById("kannadaOutput");
+      const englishOutput = document.getElementById("englishOutput");
+      const context = canvas.getContext("2d");
+
+      // Access webcam
+      if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then((stream) => (video.srcObject = stream))
+          .catch((error) => {
+            console.error("Webcam access error:", error);
+            ocrResult.innerText = "Could not access webcam. Please allow camera.";
+          });
+      }
+
+      captureBtn.addEventListener("click", async () => {
+        ocrResult.innerText = "Recognizing text...";
+        kannadaOutput.innerText = "";
+        englishOutput.innerText = "";
+
+        // Capture image from webcam
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+        const imageDataUrl = canvas.toDataURL("image/png");
+        capturedImage.src = imageDataUrl;
+
+        try {
+          // Perform OCR using Tesseract.js (like text-translation.html)
+          const worker = await Tesseract.createWorker("kan");
+          const result = await worker.recognize(imageDataUrl);
+          const text = result.data.text.trim();
+          await worker.terminate();
+
+          if (!text) {
+            ocrResult.innerText = "No text recognized from image.";
+            return;
+          }
+
+          ocrResult.innerText = text;
+
+          // Translate recognized text
+          kannadaOutput.innerText = "Translating...";
+          englishOutput.innerText = "Translating...";
+
+          const response = await fetch("/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, source: "api" }),
+          });
+
+          if (!response.ok) throw new Error("Translation failed");
+
+          const data = await response.json();
+
+          kannadaOutput.innerText =
+            data.kannada || "Kannada translation not available.";
+          englishOutput.innerText =
+            data.english || "English translation not available.";
+        } catch (error) {
+          console.error("Error:", error);
+          ocrResult.innerText = "Error recognizing text. Please try again.";
+          kannadaOutput.innerText = "";
+          englishOutput.innerText = "";
+        }
+      });
+    </script>
+  </body>
+</html>

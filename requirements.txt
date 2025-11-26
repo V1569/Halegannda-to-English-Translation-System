@@ -1,0 +1,9 @@
+flask
+flask-cors
+google-generativeai
+openai
+Pillow
+tensorflow
+keras
+google-cloud-texttospeech
+gtts

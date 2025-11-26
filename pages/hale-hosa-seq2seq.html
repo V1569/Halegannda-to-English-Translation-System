@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hale-Hosa Seq2Seq Translation - ಹಳೆಗನ್ನಡ</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg py-2">
+      <div class="container">
+        <a class="navbar-brand fs-6" href="/">ಹಳೆಗನ್ನಡ</a>
+        <ul class="navbar-nav ms-auto fs-6">
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/pages/text-translation.html">Text Translation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/pages/json-translation.html">JSON Translation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active px-2 py-2" href="/pages/hale-hosa-seq2seq.html">Hale-Hosa Seq2Seq</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/pages/webcam.html">Webcam</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link px-2 py-2" href="/pages/about.html">About</a>
+            </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="translation-container">
+        <h2 class="text-center mb-4">Hale-Hosa Seq2Seq Translation</h2>
+
+        <div class="input-area">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <label class="form-label mb-0">Enter Halegannada Text:</label>
+            <button
+              class="btn-audio"
+              onclick="speakText(document.getElementById('inputText').value, 'kn-IN', this)"
+              title="Listen to Halegannada"
+            >
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+          <textarea
+            class="form-control mb-3"
+            id="inputText"
+            rows="5"
+            placeholder="Enter your text here..."
+          ></textarea>
+        </div>
+
+        <div class="text-center mb-4">
+          <button class="btn-translate" onclick="translateText()">
+            Translate
+            <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+
+        <div class="output-area">
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <label class="form-label mb-0">ಹೊಸಗನ್ನಡ (Hosa Kannada):</label>
+              <button
+                class="btn-audio"
+                onclick="speakText(document.getElementById('kannadaOutput').textContent, 'kn-IN', this)"
+                title="Listen to Kannada translation"
+              >
+                <i class="fas fa-volume-up"></i>
+              </button>
+            </div>
+            <div id="kannadaOutput" class="p-3 bg-white rounded">
+              Your Kannada translation will appear here...
+            </div>
+          </div>
+
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <label class="form-label mb-0">English Translation:</label>
+              <button
+                class="btn-audio"
+                onclick="speakText(document.getElementById('englishOutput').textContent, 'en-US', this)"
+                title="Listen to English translation"
+              >
+                <i class="fas fa-volume-up"></i>
+              </button>
+            </div>
+            <div id="englishOutput" class="p-3 bg-white rounded">
+              Your English translation will appear here...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+      async function translateText() {
+        const inputText = document.getElementById("inputText").value.trim();
+        if (!inputText) return;
+
+        // Show loading state
+        document.getElementById("kannadaOutput").textContent = "Translating...";
+        document.getElementById("englishOutput").textContent = "Translating...";
+
+        try {
+          const response = await fetch("/translate-seq2seq", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: inputText }),
+          });
+
+          if (!response.ok) throw new Error("Translation failed");
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          // Update translations in the UI
+          document.getElementById("kannadaOutput").textContent =
+            data.kannada_translation || "Translation not available";
+          document.getElementById("englishOutput").textContent =
+            data.english_translation || "Translation not available";
+        } catch (error) {
+          console.error("Translation error:", error);
+          document.getElementById("kannadaOutput").textContent =
+            "Error: Could not translate text";
+          document.getElementById("englishOutput").textContent =
+            "Error: Could not translate text";
+        }
+      }
+
+      // speaker function
+      async function speakText(text, lang = "kn-IN", btn = null) {
+        if (!text.trim()) return;
+        const res = await fetch("/speak", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, lang }),
+        });
+        const data = await res.json();
+        if (data.audio_url) {
+          const audio = new Audio(data.audio_url);
+          audio.play();
+        } else {
+          alert("Speech generation failed: " + data.error);
+        }
+      }
+    </script>
+  </body>
+</html>

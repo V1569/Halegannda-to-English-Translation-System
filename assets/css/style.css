@@ -1,0 +1,219 @@
+:root {
+  --karnataka-yellow: #fff59d; /* Softer Yellow */
+  --karnataka-red: #e57373; /* Softer Red */
+  --text-dark: #333;
+  --text-light: #ffffff; /* For text on red backgrounds */
+}
+
+body {
+  font-family: "Noto Sans Kannada", sans-serif;
+  background: url(../images/background.jpg) no-repeat center center fixed;
+  background-size: cover;
+  color: var(--karnataka-red); /* Default text red */
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 245, 157, 0.8);
+  z-index: -1;
+}
+
+.navbar {
+  background-color: var(--karnataka-red); /* Solid red navbar */
+  padding: 1rem 2rem;
+  border-bottom: 3px solid var(--karnataka-yellow); /* Yellow accent border */
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.navbar-collapse {
+}
+
+.navbar-nav {
+  display: flex;
+  flex-direction: row !important;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 0 !important;
+}
+
+.navbar-nav .nav-item {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand,
+.nav-link {
+  color: var(
+    --karnataka-yellow
+  ) !important; /* Yellow text on red navbar */
+  font-weight: 600;
+}
+
+.nav-link {
+  position: relative;
+  transition: color 0.2s ease;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: var(--karnataka-yellow);
+  transition: width 0.25s ease;
+}
+.nav-link:hover {
+  color: #fffde7 !important; /* Lighter yellow for hover */
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.navbar-brand {
+  transition: transform 0.2s ease;
+}
+.navbar-brand:hover {
+  transform: scale(1.03);
+}
+
+.navbar-toggler {
+  border-color: var(--karnataka-yellow); /* Yellow border for toggler */
+}
+.navbar-toggler-icon {
+  /* SVG for toggler icon - consider making stroke darker if yellow is too light */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(229, 115, 115, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); /* Adjusted to softer red for visibility */
+}
+
+.hero-section {
+  background-color: transparent;
+  color: var(--karnataka-yellow);
+  padding: 7rem 0;
+  min-height: 60vh;
+  margin-bottom: 3rem;
+  text-align: center;
+  border-bottom: 5px solid var(--karnataka-yellow);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section h1,
+.hero-section p {
+  color: var(--karnataka-yellow);
+}
+
+.feature-card {
+  background: #ffffe0; /* Even lighter yellow for cards for contrast */
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  border: 2px solid var(--karnataka-red);
+  color: var(--karnataka-red);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(229, 115, 115, 0.2); /* Softer red shadow */
+}
+
+.feature-card h3 {
+  color: var(--karnataka-red);
+}
+.feature-card p {
+  /* Using the main --karnataka-red for p, as card bg is very light */
+  color: var(--karnataka-red);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--karnataka-red);
+}
+
+.btn-outline-danger {
+  color: var(--karnataka-red);
+  border-color: var(--karnataka-red);
+}
+.btn-outline-danger:hover {
+  background-color: var(--karnataka-red);
+  color: var(--karnataka-yellow);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--karnataka-red);
+}
+
+a {
+  color: var(--karnataka-red);
+}
+a:hover {
+  color: #b71c1c; /* Darker, more muted red for link hover */
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 4rem 0;
+    min-height: 50vh;
+  }
+
+  .navbar-collapse {
+    background: var(--karnataka-red);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+    border: 1px solid var(--karnataka-yellow);
+  }
+
+  .nav-link {
+    color: var(--karnataka-yellow) !important;
+    display: inline-block;
+  }
+  .nav-link:hover {
+    color: #fffde7 !important;
+    transform: translateX(2px);
+  }
+}
+
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.hero-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 245, 157, 0.25);
+  z-index: 0;
+}
+
+.hero-section > .container {
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 992px) {
+  .navbar-collapse {
+    display: block !important;
+  }
+}
